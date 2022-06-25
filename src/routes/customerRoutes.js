@@ -13,4 +13,4 @@ router.get('/', (req, res) => {
 router.get('/all', getAllCustomers);
 router.post('/add', createCustomer )
 
-export default router;
+module.exports = router;
