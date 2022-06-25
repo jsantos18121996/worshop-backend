@@ -1,31 +1,103 @@
 const { response } = require('express');
+const { mongo } = require('mongoose');
+const Categorie = require('../models/Categories');
+const Customer = require('../models/Customer');
 
-const getAllCategories = (req, res = response) => {
-    res.status(200).json({
-        ok: true,
-        message: "get All categories"
-    })
+const getAllCategories = async(req, res = response) => {
+
+    try {
+        let categories = await Categorie.find().populate("customer", "name");
+        console.log('categories result', categories);
+        res.status(200).json({
+            ok: true,
+            categories
+        })
+    } catch (error) {
+        console.log('error in getAllCategories', error);
+        res.status(500).json({
+            ok: false,
+            message: "Hubo un error consultando las categorías"
+        })
+    }
+   
 }
 
-const addCategories = (req, res = response) => {
-    res.status(201).json({
-        ok: true,
-        message: "add Categorie"
-    })
+const addCategories = async(req, res = response) => {
+    console.log('req.body in addCategories', req.body);
+    const categorie = new Categorie(req.body);
+    try {
+        categorie.customer = req.body.customer;
+        const categorie_created = await categorie.save();
+        res.status(201).json({
+            ok: true,
+            categorie_created : categorie_created
+        })
+    } catch (error) {
+        console.log('error creando la categoria', error);
+        res.status(500).json({
+            ok: false,
+            message: "No pudo crearse la categoría"
+        })
+    }
+
+    
 }
 
-const updateCategories = (req, res = response) => {
-    res.status(201).json({
-        ok: true,
-        message: "updateCategories"
-    })
+const updateCategories = async(req, res = response) => {
+    console.log("req.params de updateCategories" , req.params);
+    const categoryID = req.params.id;
+    try {
+        const categoryFilteredByID = Categorie.findById(categoryID);
+        if(!categoryFilteredByID) {
+            res.status(404).json({
+                ok: false,
+                message: "Categoría no encontrada"
+            })
+        }
+        const categoryNew = {
+            ...req.body
+        }
+        const categoryUpdate = await Categorie.findByIdAndUpdate(categoryID, 
+            categoryNew, {new: true})
+        res.status(201).json({
+            ok: true,
+            message: categoryUpdate
+        }) 
+    } catch (error) {
+        console.log("error actualizando la categoría", error)
+        res.status(500).json({
+            ok: false,
+            message: "No pudo actualizarse la categoría"
+        })
+    }
+    
 }
 
-const deleteCategories = (req, res = response) => {
-    res.status(201).json({
-        ok: true,
-        message: "Delete categorie"
-    })
+const deleteCategories = async (req, res = response) => {
+    const categoryID = req.params.id;
+    console.log('categoryID', categoryID);
+    const categoryByDelete = await Categorie.findById(categoryID)
+    if(!categoryByDelete) {
+        res.status(404).json({
+            ok: false,
+            message: "Categoría no encontrada para eliminar"
+        })
+    }
+    try {
+        await Categorie.findByIdAndDelete(categoryID);
+        res.status(201).json({
+            ok: true,
+            message: "Categoría eliminada",
+            category_deleted : categoryByDelete
+        }) 
+    } catch (error) {
+        console.log('error in deleteCategorie ', error)
+        res.status(500).json({
+            ok: false,
+            message: "No pudo eliminarse la categoría"
+        })
+    }
+    
 }
 
 module.exports = {
