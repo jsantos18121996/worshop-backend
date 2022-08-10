@@ -43,7 +43,34 @@ const getAllCustomers = async(req, res = response) => {
     })
 }
 
+const deleteCustomer = async (req, res= response) => {
+    let customerID = req.params.id;
+    let customerByID = await Customer.findById(customerID);
+    if(!customerByID) {
+        res.status(404).json({
+            ok: false,
+            message: "No se encontró al customer que desea eliminar"
+        })
+    }
+    
+    try {
+        await Customer.findByIdAndDelete(customerID);
+        res.status(200).json({
+            ok: true,
+            message: "Customer eliminado con éxito",
+            customer_deleted : customerByID
+        })
+    } catch(error) {
+        res.status(500).json({
+            ok: false,
+            message: "Hubo un problema al intentar eliminar el customer"
+        })
+    }
+    
+}
+
 module.exports = {
     createCustomer,
+    deleteCustomer,
     getAllCustomers
 }

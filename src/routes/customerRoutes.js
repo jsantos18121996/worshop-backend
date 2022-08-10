@@ -2,7 +2,7 @@ const { Router } = require('express');
 
 const router = Router();
 
-const { createCustomer, getAllCustomers } = require('../controllers/customerController');
+const { createCustomer, getAllCustomers, deleteCustomer } = require('../controllers/customerController');
 
 router.get('/', (req, res) => {
     res.status(200).json({
@@ -11,6 +11,7 @@ router.get('/', (req, res) => {
 })
 
 router.get('/all', getAllCustomers);
-router.post('/add', createCustomer )
+router.post('/add', createCustomer );
+router.delete('/:id', deleteCustomer);
 
 module.exports = router;

@@ -1,12 +1,21 @@
 const { Schema, model } = require('mongoose');
 
 const CategorieSchema = Schema({
+    code: {
+        type: String,
+        required: true,
+        unique: true
+    },
     name: {
         type: String,
         required: true,
         unique: true
     },
-    customer: {
+    abreviature: {
+        type: String,
+        required: true
+    },
+    customer: {//esto es temporal luego eliminarlo
         type: Schema.Types.ObjectId,
         ref: "customer"
     }

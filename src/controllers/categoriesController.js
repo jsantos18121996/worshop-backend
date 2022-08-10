@@ -6,7 +6,8 @@ const Customer = require('../models/Customer');
 const getAllCategories = async(req, res = response) => {
 
     try {
-        let categories = await Categorie.find().populate("customer", "name");
+        //let categories = await Categorie.find().populate("customer", "name");
+        let categories = await Categorie.find();
         console.log('categories result', categories);
         res.status(200).json({
             ok: true,
@@ -73,6 +74,31 @@ const updateCategories = async(req, res = response) => {
     
 }
 
+const findCategorieByID = async (req, res = response) => {
+    const categoryID = req.params.id;
+    const categorieByID = await Categorie.findById(categoryID);
+    if(!categorieByID) {
+        res.status(400).json({
+            ok: false,
+            message: "Categoría no encontrada"
+        })
+    }
+    try {
+        await Categorie.findByIdAndDelete(categoryID);
+        res.status(200).json({
+            ok: true,
+            message: "Categoría encontrada",
+            category_find : categorieByID
+        }) 
+    } catch (error) {
+        console.log('error in  findCategorieByID', error)
+        res.status(500).json({
+            ok: false,
+            message: "Problema recuperando la categoría"
+        })
+    }
+}
+
 const deleteCategories = async (req, res = response) => {
     const categoryID = req.params.id;
     console.log('categoryID', categoryID);
@@ -104,5 +130,6 @@ module.exports = {
     getAllCategories,
     addCategories,
     updateCategories,
-    deleteCategories
+    deleteCategories,
+    findCategorieByID
 }
